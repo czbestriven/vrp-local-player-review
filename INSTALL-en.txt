@@ -1,0 +1,84 @@
+VRP Local Player Connector — Independent Review Environment
+
+STATUS: Independent review candidate. The publisher has reported the synthetic-media
+Windows preflight described in PREFLIGHT-SUMMARY.json. The host and helper remain
+unsigned candidates. This is not store approval or production acceptance. Hashes
+identify bytes, not a publisher. Only guides/metadata were updated after preflight;
+executables, extension and sample bytes are unchanged. Source files and original
+component descriptors retain their historical build-time snapshots.
+
+Requirements
+Use a separate Windows 11 x64 test account or VM. A separate Edge profile alone does
+not isolate per-user native messaging registration. Have Microsoft Edge and the actual
+PotPlayer x64 executable installed (official distributor: https://potplayer.tv/).
+PotPlayer is not redistributed in this kit. No SDK, Python, Node, Docker, VPN, NAS,
+production login or separately installed .NET runtime is needed.
+If organizational security blocks an unsigned candidate, record the message and follow
+your administrator's process; do not disable protections or install unknown certificates.
+
+Install and run
+1. Extract the entire ZIP to a regular local directory owned by the test user. Do not
+   run inside the archive, from a network share or from a symlink/junction.
+2. Double-click Start-Review.cmd, or host\VRP-Review-Environment.exe. Keep the console
+   open. It listens ONLY at http://127.0.0.1:18765 and attempts to open Microsoft Edge.
+   If port 18765 is occupied it refuses; it never kills a process or changes ports.
+3. Reviewers: use the extension under certification. Publisher preflight: open
+   edge://extensions in this isolated account, enable developer mode, and load the
+   included extension folder. This is explicitly local testing, not store installation.
+4. Copy the actual 32-letter extension ID from Edge into the review page. Do not use
+   the Partner Center product GUID or Seller ID. Download VRP-Review.vrp from the page.
+5. Run installer\VRP-LocalPlayer-Connector-1.1.2-win-x64.exe.
+   In tab "1 安装与更新" (Install/update), click "导入平台安装信息 (.vrp)" (Import),
+   select VRP-Review.vrp, verify the extension ID and loopback page/API pair, select
+   Edge, and click "安装 / 更新连接器" (Install/update connector).
+6. In tab "2 本机设置" (Local settings), select the actual PotPlayerMini64.exe, not
+   its installer or a launcher script. Keep only the review page/API pair, both
+   http://127.0.0.1:18765. Explicitly enable HTTP globally and in that pair's row.
+   Add only the media folder displayed on the review page as an allowed local root.
+   Leave UNC roots empty. Confirm permissions and click "确认并保存设置" (Save).
+   Importing the .vrp file alone grants no filesystem or HTTP authority.
+7. Return to the page and click Check connection. Expect connector_ready and the
+   real helper's version/status. Checking issues no ticket and starts no player.
+8. Click Play sample. A 30-second single-use opaque ticket is issued for exactly
+   media\review-sample.mp4. The real extension calls the real native helper.
+   Expect player_started AND visually observe PotPlayer showing color patterns,
+   "VRP SYNTHETIC REVIEW SAMPLE", and an eight-second timeline. A quiet synthesized
+   tone is included. Record these as separate observations; a response alone does
+   not prove decoding. Playback is never automatically retried.
+9. Only after personally observing playback, tick the observation checkbox and
+   export the session record. It contains no ticket, uploads nothing, and does not
+   automatically declare an acceptance PASS.
+
+Negative checks and cleanup
+10. Close test player instances, then use Wrong API, Extra field, and Expired ticket.
+    Expected errors: page_api_pair_not_allowed, extension_request_invalid, and (after
+    31 seconds) ticket_expired. None should open a player.
+11. Replace the allowed media root with a different empty test folder in the helper,
+    save, check, and play again. Expect local_path_rejected. Restore the original root.
+12. Start a valid playback and close Edge immediately. Observe the player finishing
+    the clip. This observation is separate from the complete process/path-lock matrix.
+13. Close all test players. Uninstall the helper via Windows Apps using full cleanup.
+    With the extension still present, checking should return native_host_not_configured.
+    Remove the test extension from Edge, then close the review console. The listener
+    stops; no service, startup entry, scheduled task or firewall rule was installed.
+14. Delete the extracted kit when no longer needed. Keep any desired reports first.
+    The downloaded .vrp, observation report and PotPlayer are separate items.
+
+Scope and submission
+This is an explicitly labeled synthetic-media fixture, NOT a full VRP/PostgreSQL
+deployment. It tests one LOCAL_PATH sample, not NAS/UNC or production deployment.
+There is no reviewer-specific branch or hidden behavior in the extension/helper.
+The same candidate and configuration work for any user of this demonstration.
+The included extension folder is byte-identical to this kit's candidate submission
+ZIP. Its business JavaScript is unchanged from the earlier draft; only the exact
+loopback origin pair and corresponding manifest match were added. Other ports remain
+rejected at runtime. The earlier draft allowing only the private production address
+will NOT run this environment. Update the draft with the new candidate only after
+Windows preflight, then configure/test the actual store-assigned extension identity.
+Unpacked IDs are not store IDs. The reported preflight is limited to this synthetic
+scenario. Formal signing/distribution and store-installed validation remain separate.
+
+References
+https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension#step-8-enter-certification-testing-notes-and-submit-the-extension
+https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging
+https://potplayer.tv/
