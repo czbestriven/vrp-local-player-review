@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-07",
+  "evidence_type": "PUBLISHER_USER_REPORTED_WINDOWS_PREFLIGHT",
+  "scope": "synthetic_local_path_only",
+  "environment": {
+    "windows_architecture": "x64",
+    "browser_major": "Edge 157",
+    "windows_build": "not reported",
+    "player_version": "not reported"
+  },
+  "observations": {
+    "native_probe": "connector_ready; host 1.1.2; one allowed local root; no UNC roots",
+    "play_dispatch": "player_started / LOCAL_PATH",
+    "visible_synthetic_video": "explicitly confirmed by user",
+    "wrong_api": "page_api_pair_not_allowed",
+    "extra_field": "extension_request_invalid",
+    "expired_ticket": "ticket_expired",
+    "revoked_media_root": "local_path_rejected",
+    "player_survival_after_edge_closed": "confirmed by user",
+    "post_uninstall_probe": "native_host_not_configured",
+    "listener_stopped_with_console": "confirmed by user"
+  },
+  "limitations": [
+    "User-provided report and visual confirmations, not independent remote capture",
+    "No full registry/filesystem cleanup inventory",
+    "No full process/path-lock lifetime matrix",
+    "No NAS/UNC or production-system acceptance",
+    "No store-installed identity or signed-release acceptance",
+    "Windows-side executable/archive hashes not independently captured"
+  ],
+  "original_test_kit_sha256": "631cb0e98228a4ca858eba318a524b11c08b388d100b5eb33897542550fe0e81",
+  "executable_extension_sample_bytes_unchanged": true,
+  "no_automatic_acceptance_status": true
+}
