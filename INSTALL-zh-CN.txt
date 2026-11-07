@@ -1,0 +1,81 @@
+VRP 本地播放器连接器：独立审核测试包
+
+状态：供独立审核使用的候选。发布者已报告完成合成媒体 Windows 预检，见 PREFLIGHT-SUMMARY.json。
+测试服务和助手安装器仍为未签名候选；该预检不代表商店批准或生产验收。
+
+一、准备
+1. 使用独立的 Windows 11 x64 测试用户或虚拟机。不要在正在使用现场 VRP 助手的 Windows 用户中安装。
+   只新建 Edge 配置文件不够：同一 Windows 用户的 Native Host 登记由各浏览器配置文件共享。
+2. 准备 Microsoft Edge 和实际 PotPlayer x64。播放器从 https://potplayer.tv/ 获取；不随本包重新分发。
+   本包内置 .NET 运行时，不需要 Python、Node、SDK、Docker、VPN、NAS 或生产账号。
+3. 解压整个 ZIP 到普通本地目录，例如测试用户的 Downloads\VRP-Review。
+   不要直接从 ZIP 内启动，也不要移动单个 host EXE。不要使用网络共享、符号链接或目录联接。
+4. 文件清单见 SHA256SUMS；manifest.json 记录组件来源和散列。散列不是发布者数字签名。
+   如果组织或 Windows 安全策略阻止候选运行，记录提示交管理员处理，不要关闭安全防护或导入不明证书。
+
+二、启动独立服务
+5. 双击 Start-Review.cmd，或进入 host 文件夹双击 VRP-Review-Environment.exe。
+   服务只监听 http://127.0.0.1:18765；会尝试在 Edge 打开此地址。保持控制台窗口开启。
+   端口被占用时会拒绝启动，不终止其他进程，也不自动换端口。
+   无管理员安装、开机自启、计划任务、系统服务、防火墙规则或浏览器策略修改。
+
+三、加载待测扩展，取得真实 ID
+6. 微软审核人员：使用正在审核的提交包。发布者预检：在此独立测试用户的 Edge 打开 edge://extensions，
+   打开开发人员模式，选择“加载解压缩的扩展”，选择本包的 extension 文件夹。
+   这只用于明确的本地预检，不代表商店已安装或普通用户分发已完成。
+7. 在扩展管理页复制“VRP 本地播放器连接器”的实际 32 位字母 ID，粘贴到测试页面的扩展 ID 字段。
+   ID 由此安装产生。不能拿 Seller ID、Partner Center 产品 GUID、旧开发 ID 或其他扩展 ID 代替。
+8. 点击“下载平台信息”，保存 VRP-Review.vrp。
+
+四、安装并配置真实 Windows 助手
+9. 双击 installer 文件夹中的 VRP-LocalPlayer-Connector-1.1.2-win-x64.exe。
+10. 在“1 安装与更新”点击“导入平台安装信息 (.vrp)”，选择刚下载的 VRP-Review.vrp。
+    核对 ID 和两项地址均为 http://127.0.0.1:18765；勾选 Edge，Chrome 可不选。
+    点击“安装 / 更新连接器”。安装本身不授予媒体目录权限。
+11. 进入“2 本机设置”：
+    - 选择已安装的实际 PotPlayerMini64.exe。不要选播放器安装程序、启动脚本或代理程序。
+    - 只保留审核环境的页面/API 配对，两者都是 http://127.0.0.1:18765。
+    - 同时明确勾选该行“允许 HTTP”和全局 HTTP 选项。这是本机回环演示授权，不是生产 HTTPS 豁免。
+    - 只添加测试页面显示的 media 文件夹作为“允许的本地媒体根目录”。
+    - NAS UNC 列表保持空；不添加整个磁盘或生产媒体目录。
+    - 确认本机授权并点击“确认并保存设置”。
+
+五、正常链路
+12. 返回测试页面，点击“检测连接”。预期 connector_ready，并显示实际助手版本和配置状态。
+    检测不签发票据、不打开播放器。失败时按提示修复，再主动点击；没有自动重试播放。
+13. 点击“播放合成样本”。服务为固定样本签发 30 秒一次性票据；扩展经 Native Messaging 调用真实助手。
+    预期助手返回 player_started，PotPlayer 实际出现彩色图案和 “VRP SYNTHETIC REVIEW SAMPLE” 标题，进度约 8 秒。
+    可听到较轻的合成音。请分别记录协议返回、播放器进程/窗口、实际可见画面。
+    仅有 player_started 不是解码或完整验收证据。
+14. 若确实看到播放，在页面勾选人工观察项，填写简短结果并导出 VRP-Review-Observation.json。
+    记录不含播放票据，不自动判 PASS，也不会上传。
+
+六、拒绝与生命周期检查
+15. 关闭所有测试 PotPlayer 实例，然后分别点击：
+    - 错误 API 配对：预期 page_api_pair_not_allowed。
+    - 额外请求字段：预期 extension_request_invalid。
+    - 过期票据：等待 31 秒后只发送一次；预期 ticket_expired。
+    三项均不应打开新播放器。
+16. 在助手设置中把唯一允许本地目录换成另一个空测试目录并保存，回页面重新检测、点击播放。
+    预期 local_path_rejected，不能播放原样本。完成后恢复包内 media 目录。
+17. 正常播放后立刻关闭 Edge 窗口，观察播放器仍完成该段视频。重新打开页面后重新填写 ID。
+    这只是人工观察，不等于所有 Job Object、进程身份、路径锁生命周期矩阵已完成。
+18. 关闭全部测试播放器；在 Windows 应用列表卸载 VRP 播放助手，选择完整清理。
+    保留扩展时再次检测，应报告 native_host_not_configured；最后在 Edge 移除测试扩展。
+19. 关闭独立服务控制台后，127.0.0.1:18765 不再可用。服务没有后台运行或自启动。
+    确认不再使用后可删除解压的测试目录；下载的 .vrp、报告和 PotPlayer 是独立文件/软件。
+
+范围与发布衔接
+- 本服务是公开说明的合成媒体 fixture，不是完整 VRP/PostgreSQL 平台，不声称覆盖 NAS 或生产部署。
+- 所用扩展和助手没有审核人员专属开关；正常用户使用相同候选与配置也可执行此演示。
+- extension 目录与本轮 store-candidate ZIP 解包内容相同，无开发公钥。业务 JS 与原草稿一致，
+  仅允许列表新增精确回环配对。127.0.0.1 的其他端口仍会被扩展运行时拒绝。
+- 之前已上传的仅现场地址草稿不能运行此演示。完成 Windows 预检后，需要上传本轮新候选 ZIP，
+  然后以商店真实身份再次配置/测试。不要把此次解压加载的 ID 当作正式商店 ID。
+- 已报告的 Windows 预检限于合成媒体场景。普通用户的正式商店安装与签名/分发仍单独处理。
+- source 目录和原始组件描述符保留构建时快照；本次只更新说明及预检摘要，程序和样本字节未改变。
+
+参考
+https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension#step-8-enter-certification-testing-notes-and-submit-the-extension
+https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging
+https://potplayer.tv/
